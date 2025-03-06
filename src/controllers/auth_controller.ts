@@ -9,27 +9,13 @@ const register = async (req: Request, res: Response) => {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    let imgUrl = req.body.imgUrl;
-    if (!imgUrl) imgUrl = null;
-
     const user = await userModel.create({
       email: req.body.email,
       userName: req.body.userName,
       fullName: req.body.fullName,
       password: hashedPassword,
-      imgUrl: imgUrl,
-      refreshToken: [],
     });
-
-    const tokens = await generateToken(user._id.toString());
-    if (!tokens) {
-      res.status(500).json({ message: "Error generating token" });
-    } else {
-      user.refreshToken = [tokens?.refreshToken];
-      await user.save();
-    }
-
-    res.status(200).send({ ...user.toObject(), accessToken: tokens?.accessToken });
+    res.status(200).send(user);
   } catch (err) {
     res.status(400).send(err);
   }
@@ -39,7 +25,7 @@ type tTokens = {
   accessToken: string;
   refreshToken: string;
 };
-const generateToken = async (userId: string): Promise<tTokens | null> => {
+const generateToken = (userId: string): tTokens | null => {
   if (!process.env.TOKEN_SECRET) {
     return null;
   }
@@ -84,7 +70,7 @@ const login = async (req: Request, res: Response) => {
       return;
     }
 
-    const tokens = await generateToken(user._id);
+    const tokens = generateToken(user._id);
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
@@ -169,7 +155,7 @@ const refresh = async (req: Request, res: Response) => {
       res.status(400).send("fail");
       return;
     }
-    const tokens = await generateToken(user._id);
+    const tokens = generateToken(user._id);
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
