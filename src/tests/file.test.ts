@@ -3,7 +3,7 @@ import initApp from "../server";
 import mongoose from "mongoose";
 import { Express } from "express";
 
-var app: Express;
+let app: Express;
 
 beforeAll(async () => {
   console.log("beforeAll");

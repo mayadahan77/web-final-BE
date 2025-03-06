@@ -1,11 +1,12 @@
 import express from "express";
 const router = express.Router();
 import multer from "multer";
+import userModel from "../models/users_model";
 
 const base = process.env.DOMAIN_BASE + "/";
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "public/");
+    cb(null, "public/uploads/");
   },
   filename: function (req, file, cb) {
     const ext = file.originalname
@@ -18,8 +19,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.post("/", upload.single("file"), (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
   console.log("router.post(/file: " + base + req.file?.path);
-  res.status(200).send({ url: base + req.file?.path });
+  const userBody = {
+    imgUrl: base + req.file?.path,
+  };
+  const user = await userModel.findByIdAndUpdate(req.body?.userId, userBody, { new: true });
+  res.status(200).send({ url: base + req.file?.path, user: user?.toObject() });
 });
 export = router;

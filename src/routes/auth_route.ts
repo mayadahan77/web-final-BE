@@ -3,74 +3,73 @@ const router = express.Router();
 import authController from "../controllers/auth_controller";
 
 /**
-* @swagger
-* tags:
-*   name: Auth
-*   description: The Authentication API
-*/
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: The Authentication API
+ */
 
 /**
-* @swagger
-* components:
-*   securitySchemes:
-*     bearerAuth:
-*       type: http
-*       scheme: bearer
-*       bearerFormat: JWT
-*/
-
-
-/**
-* @swagger
-* components:
-*   schemas:
-*     User:
-*       type: object
-*       required:
-*         - email
-*         - fullName
-*         - userName
-*         - password
-*       properties:
-*         email:
-*           type: string
-*           description: The user email
-*         fullName:
-*           type: string
-*           description: The user fullName
-*         userName:
-*           type: string
-*           description: The user userName
-*         password:
-*           type: string
-*           description: The user password
-*       example:
-*         email: 'bob@gmail.com'
-*         fullName: 'bob the mob'
-*         userName: 'john cena'
-*         password: '123456'
-*/
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
 
 /**
-* @swagger
-* /auth/register:
-*   post:
-*     summary: registers a new user
-*     tags: [Auth]
-*     requestBody:
-*       required: true
-*       content:
-*         application/json:
-*           schema:
-*             $ref: '#/components/schemas/User'
-*     responses:
-*       200:
-*         description: The new user
-*         content:
-*           application/json:
-*             schema:
-*               $ref: '#/components/schemas/User'
-*/
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - email
+ *         - fullName
+ *         - userName
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: The user email
+ *         fullName:
+ *           type: string
+ *           description: The user fullName
+ *         userName:
+ *           type: string
+ *           description: The user userName
+ *         password:
+ *           type: string
+ *           description: The user password
+ *       example:
+ *         email: 'bob@gmail.com'
+ *         fullName: 'bob the mob'
+ *         userName: 'john cena'
+ *         password: '123456'
+ */
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: registers a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: The new user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ */
 router.post("/register", authController.register);
 
 /**
@@ -178,5 +177,6 @@ router.post("/refresh", authController.refresh);
  */
 router.post("/logout", authController.logout);
 
+router.post("/googleSignin", authController.googleSignin);
 
 export default router;

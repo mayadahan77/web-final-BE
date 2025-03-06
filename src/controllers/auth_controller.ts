@@ -3,19 +3,78 @@ import userModel, { IUser } from "../models/users_model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Document } from "mongoose";
+import { OAuth2Client } from "google-auth-library/build/src/auth/oauth2client";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const googleSignin = async (req: Request, res: Response) => {
+  const credential = req.body.credential;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: credential.credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    console.log(payload);
+
+    const email = payload?.email;
+    const name = payload?.name;
+    let user = await userModel.findOne({ email: email });
+    if (user == null) {
+      user = await userModel.create({
+        email: email,
+        userName: email,
+        fullName: name,
+        imgUrl: payload?.picture,
+        password: "google-signin",
+      });
+    }
+    const tokens = await generateToken(user._id);
+    if (!tokens) {
+      res.status(500).send("Server Error");
+      return;
+    }
+    if (!user.refreshToken) {
+      user.refreshToken = [];
+    }
+    user.refreshToken.push(tokens.refreshToken);
+    await user.save();
+    res.status(200).send({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: user,
+    });
+  } catch (err) {
+    res.status(400).send(`error missing email or password, ${err}`);
+  }
+};
 
 const register = async (req: Request, res: Response) => {
   try {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    let imgUrl = req.body.imgUrl;
+    if (!imgUrl) imgUrl = null;
+
     const user = await userModel.create({
       email: req.body.email,
       userName: req.body.userName,
       fullName: req.body.fullName,
       password: hashedPassword,
+      imgUrl: imgUrl,
+      refreshToken: [],
     });
-    res.status(200).send(user);
+
+    const tokens = await generateToken(user._id.toString());
+    if (!tokens) {
+      res.status(500).json({ message: "Error generating token" });
+    } else {
+      user.refreshToken = [tokens?.refreshToken];
+      await user.save();
+    }
+
+    res.status(200).send({ ...user.toObject(), accessToken: tokens?.accessToken });
   } catch (err) {
     res.status(400).send(err);
   }
@@ -25,7 +84,7 @@ type tTokens = {
   accessToken: string;
   refreshToken: string;
 };
-const generateToken = (userId: string): tTokens | null => {
+const generateToken = async (userId: string): Promise<tTokens | null> => {
   if (!process.env.TOKEN_SECRET) {
     return null;
   }
@@ -70,7 +129,7 @@ const login = async (req: Request, res: Response) => {
       return;
     }
 
-    const tokens = generateToken(user._id);
+    const tokens = await generateToken(user._id);
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
@@ -83,7 +142,7 @@ const login = async (req: Request, res: Response) => {
     res.status(200).send({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      _id: user._id,
+      user: user,
     });
   } catch (err) {
     res.status(400).send(err);
@@ -155,7 +214,7 @@ const refresh = async (req: Request, res: Response) => {
       res.status(400).send("fail");
       return;
     }
-    const tokens = generateToken(user._id);
+    const tokens = await generateToken(user._id);
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
@@ -172,7 +231,7 @@ const refresh = async (req: Request, res: Response) => {
     });
     //send new token
   } catch (err) {
-    res.status(400).send("fail");
+    res.status(400).send(err);
   }
 };
 
@@ -181,7 +240,7 @@ type Payload = {
 };
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const authorization = req.header("authorization");
+  const authorization = req.header("Authorization");
   const token = authorization && authorization.split(" ")[1];
 
   if (!token) {
@@ -206,6 +265,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 export default {
   register,
   login,
+  googleSignin,
   refresh,
   logout,
 };
