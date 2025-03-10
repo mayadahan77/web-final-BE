@@ -45,6 +45,29 @@ class PostsController extends BaseController<IPost> {
       res.status(400).send(error);
     }
   }
+
+  async getById(req: Request, res: Response) {
+    const id = req.params.id;
+    try {
+      const item = await this.model.findById(id);
+      if (item != null) {
+        const user = await userModel.findOne({ _id: item.senderId });
+        const commentsCount = await commentModel.countDocuments({ postId: item._id });
+        const populatedItem = {
+          ...item.toObject(),
+          senderName: user?.fullName,
+          senderProfile: user?.imgUrl,
+          commentsCount: commentsCount,
+        };
+
+        res.send(populatedItem);
+      } else {
+        res.status(404).send("not found");
+      }
+    } catch (error) {
+      res.status(400).send(error);
+    }
+  }
 }
 
 export default new PostsController();

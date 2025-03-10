@@ -15,7 +15,19 @@ class CommentsController extends BaseController<IComments> {
       senderId: userId,
     };
     req.body = post;
-    super.create(req, res);
+    const body = req.body;
+    try {
+      const item = await this.model.create(body);
+      const user = await userModel.findOne({ _id: item.senderId });
+      const populatedItem = {
+        ...item.toObject(),
+        senderName: user?.fullName,
+        senderProfile: user?.imgUrl,
+      };
+      res.status(201).send(populatedItem);
+    } catch (error) {
+      res.status(400).send(error);
+    }
   }
 
   async getCommentsByPostId(req: Request, res: Response) {
