@@ -5,6 +5,7 @@ export interface IPost {
   content: string;
   senderId: string;
   imgUrl: string;
+  usersIdLikes?: string[];
 }
 
 const postSchema = new mongoose.Schema<IPost>({
@@ -22,6 +23,10 @@ const postSchema = new mongoose.Schema<IPost>({
   },
   imgUrl: {
     type: String,
+  },
+  usersIdLikes: {
+    type: [String],
+    default: [],
   },
 });
 

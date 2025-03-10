@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import commentsModel, { IComments } from "../models/comments_model";
 import BaseController from "./base_controller";
+import userModel from "../models/users_model";
 
 class CommentsController extends BaseController<IComments> {
   constructor() {
@@ -22,7 +23,17 @@ class CommentsController extends BaseController<IComments> {
     try {
       if (filter) {
         const items = await this.model.find({ postId: filter });
-        res.send(items)
+        const populatedItems = await Promise.all(
+          items.map(async (i) => {
+            const user = await userModel.findOne({ _id: i.senderId });
+            return {
+              ...i.toObject(),
+              senderName: user?.fullName,
+              senderProfile: user?.imgUrl,
+            };
+          })
+        );
+        res.send(populatedItems);
       }
     } catch (error) {
       res.status(400).send(error);
