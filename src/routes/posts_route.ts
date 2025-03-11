@@ -4,6 +4,7 @@ import postsController from "../controllers/posts_controller";
 import { authMiddleware } from "../controllers/auth_controller";
 
 /**
+<<<<<<< HEAD
  * @swagger
  * tags:
  *   name: Posts
@@ -19,6 +20,23 @@ import { authMiddleware } from "../controllers/auth_controller";
  *       scheme: bearer
  *       bearerFormat: JWT
  */
+=======
+* @swagger
+* tags:
+*   name: Posts
+*   description: The Posts API
+*/
+
+/**
+* @swagger
+* components:
+*   securitySchemes:
+*     bearerAuth:
+*       type: http
+*       scheme: bearer
+*       bearerFormat: JWT
+*/
+>>>>>>> main
 
 /**
  * @swagger
