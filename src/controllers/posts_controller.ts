@@ -24,12 +24,18 @@ class PostsController extends BaseController<IPost> {
 
   async getAll(req: Request, res: Response) {
     const filter = req.query.sender;
+    const skip = parseInt(req.query.skip as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
     try {
       let items;
+      let totalItems;
       if (filter) {
-        items = await this.model.find({ senderId: filter }).sort({ createdAt: -1 });
+        items = await this.model.find({ senderId: filter }).sort({ createdAt: -1 }).skip(skip).limit(limit);
+        totalItems = await this.model.countDocuments({ senderId: filter });
       } else {
-        items = await this.model.find().sort({ createdAt: -1 });
+        items = await this.model.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
+        totalItems = await this.model.countDocuments();
       }
       const populatedItems = await Promise.all(
         items.map(async (i) => {
@@ -43,7 +49,10 @@ class PostsController extends BaseController<IPost> {
           };
         })
       );
-      res.send(populatedItems);
+      res.send({
+        totalItems,
+        items: populatedItems,
+      });
     } catch (error) {
       res.status(400).send(error);
     }

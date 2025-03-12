@@ -32,9 +32,13 @@ class CommentsController extends BaseController<IComments> {
 
   async getCommentsByPostId(req: Request, res: Response) {
     const filter = req.params.id;
+    const skip = parseInt(req.query.skip as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
     try {
       if (filter) {
-        const items = await this.model.find({ postId: filter });
+        const items = await this.model.find({ postId: filter }).skip(skip).limit(limit);
+        const totalItems = await this.model.countDocuments({ postId: filter });
         const populatedItems = await Promise.all(
           items.map(async (i) => {
             const user = await userModel.findOne({ _id: i.senderId });
@@ -45,7 +49,10 @@ class CommentsController extends BaseController<IComments> {
             };
           })
         );
-        res.send(populatedItems);
+        res.send({
+          totalItems,
+          items: populatedItems,
+        });
       }
     } catch (error) {
       res.status(400).send(error);
