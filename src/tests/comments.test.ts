@@ -24,7 +24,7 @@ beforeAll(async () => {
   await request(app).post("/auth/register").send(testUser);
   const res = await request(app).post("/auth/login").send(testUser);
   testUser.token = res.body.accessToken;
-  testUser._id = res.body._id;
+  testUser._id = res.body.user._id;
   expect(testUser.token).toBeDefined();
 });
 
@@ -77,9 +77,10 @@ describe("Comments Tests with Authentication", () => {
       .get(`/comments/post/${commentTest.postId}`)
       .set({ authorization: `JWT ${testUser.token}` });
     expect(response.statusCode).toBe(200);
-    expect(response.body[0].postId).toBe(commentTest.postId);
-    expect(response.body[0].content).toBe(commentTest.content);
-    expect(response.body[0].senderId).toBe(testUser._id);
+    expect(response.body.totalItems).toBe(1);
+    expect(response.body.items[0].postId).toBe(commentTest.postId);
+    expect(response.body.items[0].content).toBe(commentTest.content);
+    expect(response.body.items[0].senderId).toBe(testUser._id);
   });
 
   test("Test get Comments by post ID without an id", async () => {
