@@ -5,11 +5,16 @@ import { authMiddleware } from "../controllers/auth_controller";
 import { upload } from "../file_upload_service";
 
 /**
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
  * @swagger
  * tags:
  *   name: Posts
  *   description: The Posts API
  */
+<<<<<<< HEAD
 
 /**
  * @swagger
@@ -20,6 +25,35 @@ import { upload } from "../file_upload_service";
  *       scheme: bearer
  *       bearerFormat: JWT
  */
+=======
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+=======
+* @swagger
+* tags:
+*   name: Posts
+*   description: The Posts API
+*/
+
+/**
+* @swagger
+* components:
+*   securitySchemes:
+*     bearerAuth:
+*       type: http
+*       scheme: bearer
+*       bearerFormat: JWT
+*/
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 
 /**
  * @swagger

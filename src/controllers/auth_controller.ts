@@ -3,6 +3,10 @@ import userModel, { IUser } from "../models/users_model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Document } from "mongoose";
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 import { OAuth2Client } from "google-auth-library/build/src/auth/oauth2client";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -48,20 +52,35 @@ const googleSignin = async (req: Request, res: Response) => {
     res.status(400).send(`error missing email or password, ${err}`);
   }
 };
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 
 const register = async (req: Request, res: Response) => {
   try {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+<<<<<<< HEAD
     let imgUrl = req.body.imgUrl;
     if (!imgUrl) imgUrl = null;
 
+=======
+<<<<<<< HEAD
+    let imgUrl = req.body.imgUrl;
+    if (!imgUrl) imgUrl = null;
+
+=======
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
     const user = await userModel.create({
       email: req.body.email,
       userName: req.body.userName,
       fullName: req.body.fullName,
       password: hashedPassword,
+<<<<<<< HEAD
       imgUrl: imgUrl,
       refreshToken: [],
     });
@@ -75,6 +94,26 @@ const register = async (req: Request, res: Response) => {
     }
 
     res.status(200).send({ ...user.toObject(), accessToken: tokens?.accessToken });
+=======
+<<<<<<< HEAD
+      imgUrl: imgUrl,
+      refreshToken: [],
+    });
+
+    const tokens = await generateToken(user._id.toString());
+    if (!tokens) {
+      res.status(500).json({ message: "Error generating token" });
+    } else {
+      user.refreshToken = [tokens?.refreshToken];
+      await user.save();
+    }
+
+    res.status(200).send({ ...user.toObject(), accessToken: tokens?.accessToken });
+=======
+    });
+    res.status(200).send(user);
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
   } catch (err) {
     res.status(400).send(err);
   }
@@ -84,7 +123,15 @@ type tTokens = {
   accessToken: string;
   refreshToken: string;
 };
+<<<<<<< HEAD
 const generateToken = async (userId: string): Promise<tTokens | null> => {
+=======
+<<<<<<< HEAD
+const generateToken = async (userId: string): Promise<tTokens | null> => {
+=======
+const generateToken = (userId: string): tTokens | null => {
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
   if (!process.env.TOKEN_SECRET) {
     return null;
   }
@@ -129,7 +176,15 @@ const login = async (req: Request, res: Response) => {
       return;
     }
 
+<<<<<<< HEAD
     const tokens = await generateToken(user._id);
+=======
+<<<<<<< HEAD
+    const tokens = await generateToken(user._id);
+=======
+    const tokens = generateToken(user._id);
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
@@ -142,7 +197,15 @@ const login = async (req: Request, res: Response) => {
     res.status(200).send({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
+<<<<<<< HEAD
       user: user,
+=======
+<<<<<<< HEAD
+      user: user,
+=======
+      _id: user._id,
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
     });
   } catch (err) {
     res.status(400).send(err);
@@ -214,7 +277,15 @@ const refresh = async (req: Request, res: Response) => {
       res.status(400).send("fail");
       return;
     }
+<<<<<<< HEAD
     const tokens = await generateToken(user._id);
+=======
+<<<<<<< HEAD
+    const tokens = await generateToken(user._id);
+=======
+    const tokens = generateToken(user._id);
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
@@ -231,7 +302,15 @@ const refresh = async (req: Request, res: Response) => {
     });
     //send new token
   } catch (err) {
+<<<<<<< HEAD
     res.status(400).send(err);
+=======
+<<<<<<< HEAD
+    res.status(400).send(err);
+=======
+    res.status(400).send("fail");
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
   }
 };
 
@@ -240,7 +319,15 @@ type Payload = {
 };
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+<<<<<<< HEAD
   const authorization = req.header("Authorization");
+=======
+<<<<<<< HEAD
+  const authorization = req.header("Authorization");
+=======
+  const authorization = req.header("authorization");
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
   const token = authorization && authorization.split(" ")[1];
 
   if (!token) {
@@ -265,7 +352,14 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 export default {
   register,
   login,
+<<<<<<< HEAD
   googleSignin,
+=======
+<<<<<<< HEAD
+  googleSignin,
+=======
+>>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
   refresh,
   logout,
 };
