@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "name": "web-final",
-=======
-  "name": "web-ex1",
->>>>>>> main
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -11,14 +7,11 @@
     "dev": "nodemon ./src/app.ts",
     "start": "tsc && node ./dist/src/app.js",
     "test": "tsc && jest --detectOpenHandles --coverage --forceExit --runInBand",
-<<<<<<< HEAD
     "testAuth": "tsc && jest --detectOpenHandles --forceExit auth.test.ts",
     "testComment": "tsc && jest --detectOpenHandles --forceExit comments.test.ts",
     "testPost": "tsc && jest --detectOpenHandles --forceExit posts.test.ts",
     "testUser": "tsc && jest --detectOpenHandles --forceExit users.test.ts",
     "testFile": "tsc && jest --detectOpenHandles --forceExit file.test.ts",
-=======
->>>>>>> main
     "lint": "eslint . --ext .ts"
   },
   "author": "Maya and Yuval",
@@ -28,15 +21,11 @@
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-<<<<<<< HEAD
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.1",
-    "multer": "^1.4.5-lts.1"
-=======
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.8.1"
->>>>>>> main
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.87.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -44,10 +33,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
-<<<<<<< HEAD
     "@types/multer": "^1.4.12",
-=======
->>>>>>> main
     "@types/supertest": "^6.0.2",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.7",
