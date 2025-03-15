@@ -4,11 +4,16 @@ import authController from "../controllers/auth_controller";
 
 /**
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
  * @swagger
  * tags:
  *   name: Auth
  *   description: The Authentication API
  */
+<<<<<<< HEAD
+=======
 
 /**
  * @swagger
@@ -77,50 +82,71 @@ import authController from "../controllers/auth_controller";
 *   name: Auth
 *   description: The Authentication API
 */
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 
 /**
-* @swagger
-* components:
-*   securitySchemes:
-*     bearerAuth:
-*       type: http
-*       scheme: bearer
-*       bearerFormat: JWT
-*/
-
-
-/**
-* @swagger
-* components:
-*   schemas:
-*     User:
-*       type: object
-*       required:
-*         - email
-*         - fullName
-*         - userName
-*         - password
-*       properties:
-*         email:
-*           type: string
-*           description: The user email
-*         fullName:
-*           type: string
-*           description: The user fullName
-*         userName:
-*           type: string
-*           description: The user userName
-*         password:
-*           type: string
-*           description: The user password
-*       example:
-*         email: 'bob@gmail.com'
-*         fullName: 'bob the mob'
-*         userName: 'john cena'
-*         password: '123456'
-*/
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
 
 /**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - email
+ *         - fullName
+ *         - userName
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: The user email
+ *         fullName:
+ *           type: string
+ *           description: The user fullName
+ *         userName:
+ *           type: string
+ *           description: The user userName
+ *         password:
+ *           type: string
+ *           description: The user password
+ *       example:
+ *         email: 'bob@gmail.com'
+ *         fullName: 'bob the mob'
+ *         userName: 'john cena'
+ *         password: '123456'
+ */
+
+/**
+<<<<<<< HEAD
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: registers a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: The new user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ */
+=======
 * @swagger
 * /auth/register:
 *   post:
@@ -141,6 +167,7 @@ import authController from "../controllers/auth_controller";
 *               $ref: '#/components/schemas/User'
 */
 >>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 router.post("/register", authController.register);
 
 /**
@@ -251,6 +278,10 @@ router.post("/logout", authController.logout);
 <<<<<<< HEAD
 router.post("/googleSignin", authController.googleSignin);
 =======
+<<<<<<< HEAD
+router.post("/googleSignin", authController.googleSignin);
+=======
 >>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 
 export default router;

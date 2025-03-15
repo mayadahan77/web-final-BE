@@ -10,7 +10,11 @@ export interface IUser {
 <<<<<<< HEAD
   imgUrl?: string;
 =======
+<<<<<<< HEAD
+  imgUrl?: string;
+=======
 >>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 }
 
 const userSchema = new mongoose.Schema({
@@ -29,11 +33,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
 =======
+<<<<<<< HEAD
+  fullName: {
+    type: String,
+    required: true,
+=======
   fullName:{
     type:String,
     required: true,
     unique: true,
 >>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
   },
   password: {
     type: String,
@@ -44,7 +54,13 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
 =======
+<<<<<<< HEAD
+  imgUrl: {
+    type: String,
+  },
+=======
 >>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
   refreshToken: {
     type: [String],
     default: [],

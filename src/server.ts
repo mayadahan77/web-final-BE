@@ -11,6 +11,7 @@ import usersRoute from "./routes/users_route";
 import authRoutes from "./routes/auth_route";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
+import fileRoute from "./routes/file_route";
 <<<<<<< HEAD
 import fileRoute from "./routes/file_route";
 
@@ -28,7 +29,6 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
->>>>>>> main
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
 app.use("/users", usersRoute);

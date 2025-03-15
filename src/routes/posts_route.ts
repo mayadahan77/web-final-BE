@@ -2,14 +2,30 @@ import express from "express";
 const router = express.Router();
 import postsController from "../controllers/posts_controller";
 import { authMiddleware } from "../controllers/auth_controller";
+import { upload } from "../file_upload_service";
 
 /**
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
  * @swagger
  * tags:
  *   name: Posts
  *   description: The Posts API
  */
+<<<<<<< HEAD
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+=======
 
 /**
  * @swagger
@@ -37,6 +53,7 @@ import { authMiddleware } from "../controllers/auth_controller";
 *       bearerFormat: JWT
 */
 >>>>>>> main
+>>>>>>> 5ba6ed9903ae22c818647aae98281253ea656d71
 
 /**
  * @swagger
@@ -127,7 +144,7 @@ router.get("/:id", authMiddleware, postsController.getById.bind(postsController)
  *       201:
  *         description: Post created successfully.
  */
-router.post("/", authMiddleware, postsController.create.bind(postsController));
+router.post("/", authMiddleware, upload.single("image"), postsController.create.bind(postsController));
 
 /**
  * @swagger
@@ -155,7 +172,7 @@ router.post("/", authMiddleware, postsController.create.bind(postsController));
  *       404:
  *         description: Post not found.
  */
-router.put("/:id", authMiddleware, postsController.updateItem.bind(postsController));
+router.put("/:id", authMiddleware, upload.single("image"), postsController.updateItem.bind(postsController));
 
 /**
  * @swagger
