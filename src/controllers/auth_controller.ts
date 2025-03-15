@@ -3,7 +3,6 @@ import userModel, { IUser } from "../models/users_model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Document } from "mongoose";
-<<<<<<< HEAD
 import { OAuth2Client } from "google-auth-library/build/src/auth/oauth2client";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -49,26 +48,20 @@ const googleSignin = async (req: Request, res: Response) => {
     res.status(400).send(`error missing email or password, ${err}`);
   }
 };
-=======
->>>>>>> main
 
 const register = async (req: Request, res: Response) => {
   try {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-<<<<<<< HEAD
     let imgUrl = req.body.imgUrl;
     if (!imgUrl) imgUrl = null;
 
-=======
->>>>>>> main
     const user = await userModel.create({
       email: req.body.email,
       userName: req.body.userName,
       fullName: req.body.fullName,
       password: hashedPassword,
-<<<<<<< HEAD
       imgUrl: imgUrl,
       refreshToken: [],
     });
@@ -82,10 +75,6 @@ const register = async (req: Request, res: Response) => {
     }
 
     res.status(200).send({ ...user.toObject(), accessToken: tokens?.accessToken });
-=======
-    });
-    res.status(200).send(user);
->>>>>>> main
   } catch (err) {
     res.status(400).send(err);
   }
@@ -95,11 +84,7 @@ type tTokens = {
   accessToken: string;
   refreshToken: string;
 };
-<<<<<<< HEAD
 const generateToken = async (userId: string): Promise<tTokens | null> => {
-=======
-const generateToken = (userId: string): tTokens | null => {
->>>>>>> main
   if (!process.env.TOKEN_SECRET) {
     return null;
   }
@@ -129,7 +114,10 @@ const generateToken = (userId: string): tTokens | null => {
 
 const login = async (req: Request, res: Response) => {
   try {
-    const user = await userModel.findOne({ email: req.body.email });
+    const user =
+      (await userModel.findOne({ email: req.body.emailOrUserName })) ||
+      (await userModel.findOne({ userName: req.body.emailOrUserName }));
+
     if (!user) {
       res.status(400).send("wrong userName or password");
       return;
@@ -144,11 +132,7 @@ const login = async (req: Request, res: Response) => {
       return;
     }
 
-<<<<<<< HEAD
     const tokens = await generateToken(user._id);
-=======
-    const tokens = generateToken(user._id);
->>>>>>> main
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
@@ -161,11 +145,7 @@ const login = async (req: Request, res: Response) => {
     res.status(200).send({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-<<<<<<< HEAD
       user: user,
-=======
-      _id: user._id,
->>>>>>> main
     });
   } catch (err) {
     res.status(400).send(err);
@@ -237,11 +217,7 @@ const refresh = async (req: Request, res: Response) => {
       res.status(400).send("fail");
       return;
     }
-<<<<<<< HEAD
     const tokens = await generateToken(user._id);
-=======
-    const tokens = generateToken(user._id);
->>>>>>> main
     if (!tokens) {
       res.status(500).send("Server Error");
       return;
@@ -258,11 +234,7 @@ const refresh = async (req: Request, res: Response) => {
     });
     //send new token
   } catch (err) {
-<<<<<<< HEAD
     res.status(400).send(err);
-=======
-    res.status(400).send("fail");
->>>>>>> main
   }
 };
 
@@ -271,11 +243,7 @@ type Payload = {
 };
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-<<<<<<< HEAD
   const authorization = req.header("Authorization");
-=======
-  const authorization = req.header("authorization");
->>>>>>> main
   const token = authorization && authorization.split(" ")[1];
 
   if (!token) {
@@ -300,10 +268,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 export default {
   register,
   login,
-<<<<<<< HEAD
   googleSignin,
-=======
->>>>>>> main
   refresh,
   logout,
 };

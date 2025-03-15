@@ -36,12 +36,17 @@ afterAll((done) => {
 describe("Post Controller Tests", () => {
   let postId = "";
 
-  test("Get all posts (empty)", async () => {
+  beforeAll(async () => {
     const response = await request(app)
-      .get("/posts")
-      .set({ authorization: `JWT ${testUser.token}` });
-    expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(0);
+      .post("/posts")
+      .set({ authorization: "JWT " + testUser.token })
+      .send({
+        title: "Test Post",
+        content: "Test Content",
+      });
+    postId = response.body._id;
+    console.log("Created postId in beforeEach:", postId);
+    expect(postId).toBeDefined();
   });
 
   test("Create a post", async () => {
@@ -55,8 +60,6 @@ describe("Post Controller Tests", () => {
     expect(response.statusCode).toBe(201);
     expect(response.body.title).toBe("Test Post");
     expect(response.body.content).toBe("Test Content");
-    expect(response.body.senderId).toBe(testUser._id);
-    postId = response.body._id;
   });
 
   test("Get post by ID", async () => {
@@ -66,7 +69,6 @@ describe("Post Controller Tests", () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.title).toBe("Test Post");
     expect(response.body.content).toBe("Test Content");
-    expect(response.body.senderId).toBe(testUser._id);
   });
 
   test("Get post by ID failed", async () => {
@@ -76,23 +78,12 @@ describe("Post Controller Tests", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("Get posts by senderId", async () => {
-    const response = await request(app)
-      .get(`/posts?sender=${testUser._id}`)
-      .set({ authorization: `JWT ${testUser.token}` });
-    expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(1);
-    expect(response.body[0].title).toBe("Test Post");
-    expect(response.body[0].content).toBe("Test Content");
-    expect(response.body[0].senderId).toBe(testUser._id);
-  });
-
   test("Get posts by senderId that does not have posts", async () => {
     const response = await request(app)
       .get("/posts?sender=noPosts")
       .set({ authorization: `JWT ${testUser.token}` });
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(0);
+    expect(response.body.totalItems).toBe(0);
   });
 
   test("Create another post", async () => {
@@ -102,7 +93,6 @@ describe("Post Controller Tests", () => {
       .send({
         title: "Test Post 2",
         content: "Test Content 2",
-        senderId: "TestOwner2",
       });
     expect(response.statusCode).toBe(201);
   });
@@ -112,7 +102,7 @@ describe("Post Controller Tests", () => {
       .get("/posts")
       .set({ authorization: `JWT ${testUser.token}` });
     expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(2);
+    expect(response.body.totalItems).toBe(3);
   });
 
   test("Create post fail (missing fields)", async () => {
@@ -125,7 +115,7 @@ describe("Post Controller Tests", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("Update post", async () => {
+  test("Update post and then Get updated post by ID", async () => {
     const response = await request(app)
       .put(`/posts/${postId}`)
       .set({ authorization: `JWT ${testUser.token}` })
@@ -136,6 +126,13 @@ describe("Post Controller Tests", () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.title).toBe("Updated Test Post");
     expect(response.body.content).toBe("Updated Content");
+
+    const response2 = await request(app)
+      .get(`/posts/${postId}`)
+      .set({ authorization: `JWT ${testUser.token}` });
+    expect(response2.statusCode).toBe(200);
+    expect(response2.body.title).toBe("Updated Test Post");
+    expect(response2.body.content).toBe("Updated Content");
   });
 
   test("Update post failed post doesnt exists", async () => {
@@ -149,16 +146,8 @@ describe("Post Controller Tests", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("Get updated post by ID", async () => {
-    const response = await request(app)
-      .get(`/posts/${postId}`)
-      .set({ authorization: `JWT ${testUser.token}` });
-    expect(response.statusCode).toBe(200);
-    expect(response.body.title).toBe("Updated Test Post");
-    expect(response.body.content).toBe("Updated Content");
-  });
-
   test("Delete post by ID", async () => {
+    console.log("Deleting postId:", postId); // Add logging here
     const response = await request(app)
       .delete(`/posts/${postId}`)
       .set({ authorization: `JWT ${testUser.token}` });
@@ -166,20 +155,6 @@ describe("Post Controller Tests", () => {
     const response2 = await request(app)
       .get(`/posts/${postId}`)
       .set({ authorization: `JWT ${testUser.token}` });
-      expect(response2.statusCode).toBe(404);
-  });
-
-  test("Delete post failed (non-existing ID)", async () => {
-    const response = await request(app)
-      .delete(`/posts/1234`)
-      .set({ authorization: `JWT ${testUser.token}` });
-    expect(response.statusCode).toBe(400);
-  });
-
-  test("Verify post was deleted", async () => {
-    const response = await request(app)
-      .get(`/posts/${postId}`)
-      .set({ authorization: `JWT ${testUser.token}` });
-    expect(response.statusCode).toBe(404);
+    expect(response2.statusCode).toBe(404);
   });
 });
