@@ -46,6 +46,9 @@ class CommentsController extends BaseController<IComments> {
     const skip = parseInt(req.query.skip as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
 
+    const skip = parseInt(req.query.skip as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
     try {
       if (filter) {
         const items = await this.model.find({ postId: filter }).skip(skip).limit(limit);
