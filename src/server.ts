@@ -12,8 +12,6 @@ import authRoutes from "./routes/auth_route";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import fileRoute from "./routes/file_route";
-<<<<<<< HEAD
-import fileRoute from "./routes/file_route";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,19 +23,14 @@ app.use((req, res, next) => {
   next();
 });
 
-=======
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
 app.use("/users", usersRoute);
 app.use("/auth", authRoutes);
-<<<<<<< HEAD
 app.use("/file", fileRoute);
-app.use("/public", express.static("public")); // all the files are statics
-=======
->>>>>>> main
+app.use("/public", express.static("public"));
 
 const options = {
   definition: {
@@ -49,7 +42,6 @@ const options = {
     },
     components: {
       securitySchemes: {
-<<<<<<< HEAD
         bearerAuth: {
           type: "http",
           scheme: "bearer",
@@ -58,16 +50,6 @@ const options = {
       },
     },
     servers: [{ url: "http://localhost:3000" }],
-=======
-          bearerAuth: {
-              type: 'http',
-              scheme: 'bearer',
-              bearerFormat: 'JWT',
-          }
-      }
-  },
-    servers: [{ url: "http://localhost:3000", },],
->>>>>>> main
   },
   apis: ["./src/routes/*.ts"],
 };
