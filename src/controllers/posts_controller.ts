@@ -10,15 +10,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-import userModel from "../models/users_model";
-import commentModel from "../models/comments_model";
-import { base } from "../file_upload_service";
-import OpenAI from "openai";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 class PostsController extends BaseController<IPost> {
   constructor() {
@@ -28,10 +19,8 @@ class PostsController extends BaseController<IPost> {
   async create(req: Request, res: Response) {
     const userId = req.params.userId;
     const image = req.file ? base + req.file?.path : null;
-    const image = req.file ? base + req.file?.path : null;
     const post = {
       ...req.body,
-      imgUrl: image,
       imgUrl: image,
       senderId: userId,
     };
