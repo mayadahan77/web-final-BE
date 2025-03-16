@@ -47,7 +47,8 @@ const options = {
         },
       },
     },
-    servers: [{ url: "http://localhost:3000" }],
+    servers: [{ url: "http://localhost:3000" },{ url: "http://10.10.246.55" },
+      { url: "https://10.10.246.55" }],
   },
   apis: ["./src/routes/*.ts"],
 };
