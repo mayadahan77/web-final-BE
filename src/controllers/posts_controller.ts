@@ -4,6 +4,12 @@ import BaseController from "./base_controller";
 import userModel from "../models/users_model";
 import commentModel from "../models/comments_model";
 import { base } from "../file_upload_service";
+import OpenAI from "openai";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 class PostsController extends BaseController<IPost> {
   constructor() {
@@ -19,7 +25,40 @@ class PostsController extends BaseController<IPost> {
       senderId: userId,
     };
     req.body = post;
-    super.create(req, res);
+
+    const body = req.body;
+    try {
+      const createdPost = await this.model.create(body);
+      if (process.env.NODE_ENV !== "test") {
+        const query = "Generate a short 10 words comment content about this post title:" + createdPost.title;
+
+        const chatGPTResponse = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          store: true,
+          messages: [
+            { role: "system", content: "You are a helpful assistant that comments on posts." },
+            { role: "user", content: query },
+          ],
+        });
+
+        const chatGPTComment = chatGPTResponse.choices[0]?.message?.content || "Interesting post!";
+        const cleanedText = chatGPTComment.replace(/^"|"$/g, "");
+
+        const newComment = {
+          postId: createdPost._id,
+          content: cleanedText,
+          senderId: "ChatGPT",
+        };
+        try {
+          await commentModel.create(newComment);
+        } catch (error) {
+          res.status(400).send(error);
+        }
+      }
+      res.status(201).send(createdPost);
+    } catch (error) {
+      res.status(400).send(error);
+    }
   }
 
   async getAll(req: Request, res: Response) {
