@@ -47,8 +47,11 @@ const options = {
         },
       },
     },
-    servers: [{ url: "http://localhost:3000" },{ url: "http://10.10.246.55" },
-      { url: "https://10.10.246.55" }],
+    servers: [
+      { url: "http://localhost:3000" },
+      { url: "http://node55.cs.colman.ac.il" },
+      { url: "https://node55.cs.colman.ac.il" },
+    ],
   },
   apis: ["./src/routes/*.ts"],
 };
