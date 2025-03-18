@@ -114,7 +114,10 @@ const generateToken = async (userId: string): Promise<tTokens | null> => {
 
 const login = async (req: Request, res: Response) => {
   try {
-    const user = await userModel.findOne({ email: req.body.email });
+    const user =
+      (await userModel.findOne({ email: req.body.emailOrUserName })) ||
+      (await userModel.findOne({ userName: req.body.emailOrUserName }));
+
     if (!user) {
       res.status(400).send("wrong userName or password");
       return;
