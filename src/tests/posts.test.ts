@@ -176,7 +176,7 @@ describe("Post Controller Tests", () => {
 
     // Normalize the imgUrl to use forward slashes
     const normalizedImgUrl = response.body.imgUrl.replace(/\\/g, "/");
-    expect(normalizedImgUrl).toMatch(/http:\/\/localhost:3000\/public\/uploads\/\d+\.txt/);
+    expect(normalizedImgUrl).toMatch(/http:\/\/localhost:3000\/storage\/\d+\.txt/);
 
     // Verify the uploaded file exists in the database
     const postId = response.body._id;
@@ -186,7 +186,7 @@ describe("Post Controller Tests", () => {
     expect(getResponse.statusCode).toBe(200);
 
     const normalizedImgUrl2 = getResponse.body.imgUrl.replace(/\\/g, "/");
-    expect(normalizedImgUrl2).toMatch(/http:\/\/localhost:3000\/public\/uploads\/\d+\.txt/);
+    expect(normalizedImgUrl2).toMatch(/http:\/\/localhost:3000\/storage\/\d+\.txt/);
   });
 
   test("Remove image from a post", async () => {
@@ -202,7 +202,7 @@ describe("Post Controller Tests", () => {
 
     // Normalize the imgUrl to use forward slashes
     const normalizedImgUrl = createResponse.body.imgUrl.replace(/\\/g, "/");
-    expect(normalizedImgUrl).toMatch(/http:\/\/localhost:3000\/public\/uploads\/\d+\.txt/);
+    expect(normalizedImgUrl).toMatch(/http:\/\/localhost:3000\/storage\/\d+\.txt/);
 
     // Remove the image
     const removeResponse = await request(app)

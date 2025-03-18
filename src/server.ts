@@ -32,7 +32,7 @@ app.use("/comments", commentsRoute);
 app.use("/users", usersRoute);
 app.use("/auth", authRoutes);
 app.use("/file", fileRoute);
-app.use("/public", express.static("public"));
+app.use("/storage", express.static("storage"));
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("front"));

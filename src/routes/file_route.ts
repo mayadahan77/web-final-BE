@@ -55,7 +55,7 @@ import { base, upload } from "../file_upload_service";
  *                 url:
  *                   type: string
  *                   description: The URL of the uploaded file.
- *                   example: http://localhost:3000/public/uploads/1681234567890.png
+ *                   example: http://localhost:3000/storage/1681234567890.png
  *                 user:
  *                   type: object
  *                   description: The updated user object.
