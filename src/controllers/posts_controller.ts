@@ -9,8 +9,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 class PostsController extends BaseController<IPost> {
   constructor() {
     super(postModel);
@@ -30,6 +28,8 @@ class PostsController extends BaseController<IPost> {
     try {
       const createdPost = await this.model.create(body);
       if (process.env.NODE_ENV !== "test") {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
         const query = "Generate a short 10 words comment content about this post title:" + createdPost.title;
 
         const chatGPTResponse = await openai.chat.completions.create({
