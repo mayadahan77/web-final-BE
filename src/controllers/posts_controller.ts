@@ -29,31 +29,33 @@ class PostsController extends BaseController<IPost> {
     const body = req.body;
     try {
       const createdPost = await this.model.create(body);
-      if (process.env.NODE_ENV !== "test") {
-        const query = "Generate a short 10 words comment content about this post title:" + createdPost.title;
 
-        const chatGPTResponse = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          store: true,
-          messages: [
-            { role: "system", content: "You are a helpful assistant that comments on posts." },
-            { role: "user", content: query },
-          ],
-        });
+      const query = "Generate a short 10 words comment content about this post title:" + createdPost.title;
 
-        const chatGPTComment = chatGPTResponse.choices[0]?.message?.content || "Interesting post!";
-        const cleanedText = chatGPTComment.replace(/^"|"$/g, "");
+      // Generate ChatGPT comment
+      const chatGPTResponse = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        store: true,
+        messages: [
+          { role: "system", content: "You are a helpful assistant that comments on posts." },
+          { role: "user", content: query },
+        ],
+      });
 
-        const newComment = {
-          postId: createdPost._id,
-          content: cleanedText,
-          senderId: "ChatGPT",
-        };
-        try {
-          await commentModel.create(newComment);
-        } catch (error) {
-          res.status(400).send(error);
-        }
+      console.log(chatGPTResponse.choices[0].message.content);
+
+      const chatGPTComment = chatGPTResponse.choices[0]?.message?.content || "Interesting post!";
+      const cleanedText = chatGPTComment.replace(/^"|"$/g, "");
+
+      const newComment = {
+        postId: createdPost._id,
+        content: cleanedText,
+        senderId: "ChatGPT",
+      };
+      try {
+        await commentModel.create(newComment);
+      } catch (error) {
+        res.status(400).send(error);
       }
       res.status(201).send(createdPost);
     } catch (error) {
