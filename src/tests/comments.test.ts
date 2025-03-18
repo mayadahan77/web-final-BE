@@ -22,10 +22,14 @@ beforeAll(async () => {
   await userModel.deleteMany();
 
   await request(app).post("/auth/register").send(testUser);
-  const res = await request(app).post("/auth/login").send(testUser);
+  const res = await request(app).post("/auth/login").send({
+    emailOrUserName: testUser.email,
+    password: testUser.password,
+  });
   testUser.token = res.body.accessToken;
-  testUser._id = res.body.user._id;
+  testUser._id = res.body.user?._id || res.body._id;
   expect(testUser.token).toBeDefined();
+  expect(testUser._id).toBeDefined();
 });
 
 afterAll((done) => {
@@ -42,14 +46,6 @@ const commentTest = {
 };
 
 describe("Comments Tests with Authentication", () => {
-  test("Comments test get all (empty)", async () => {
-    const response = await request(app)
-      .get("/comments")
-      .set({ authorization: `JWT ${testUser.token}` });
-    expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(0);
-  });
-
   test("Test Create Comment", async () => {
     const response = await request(app)
       .post("/comments")
@@ -115,14 +111,6 @@ describe("Comments Tests with Authentication", () => {
         senderId: "TestOwner2",
       });
     expect(response.statusCode).toBe(201);
-  });
-
-  test("Test get all Comments", async () => {
-    const response = await request(app)
-      .get("/comments")
-      .set({ authorization: `JWT ${testUser.token}` });
-    expect(response.statusCode).toBe(200);
-    expect(response.body.length).toBe(2);
   });
 
   test("Test delete Comment", async () => {

@@ -1,6 +1,8 @@
 node_modules/
 coverage/
 dist/
-public/uploads/
+storage/
+front/
 .env
 .env_prod
+.env_dev

@@ -21,7 +21,10 @@ beforeAll(async () => {
   await postModel.deleteMany();
   await userModel.deleteMany();
   await request(app).post("/auth/register").send(testUser);
-  const res = await request(app).post("/auth/login").send(testUser);
+  const res = await request(app).post("/auth/login").send({
+    emailOrUserName: testUser.email,
+    password: testUser.password,
+  });
   testUser.token = res.body.accessToken;
   testUser._id = res.body._id;
   expect(testUser.token).toBeDefined();
@@ -45,7 +48,7 @@ describe("Post Controller Tests", () => {
         content: "Test Content",
       });
     postId = response.body._id;
-    console.log("Created postId in beforeEach:", postId);
+    console.log("Created postId:", postId);
     expect(postId).toBeDefined();
   });
 
@@ -147,7 +150,7 @@ describe("Post Controller Tests", () => {
   });
 
   test("Delete post by ID", async () => {
-    console.log("Deleting postId:", postId); // Add logging here
+    console.log("Deleting postId:", postId);
     const response = await request(app)
       .delete(`/posts/${postId}`)
       .set({ authorization: `JWT ${testUser.token}` });
@@ -156,5 +159,81 @@ describe("Post Controller Tests", () => {
       .get(`/posts/${postId}`)
       .set({ authorization: `JWT ${testUser.token}` });
     expect(response2.statusCode).toBe(404);
+  });
+
+  test("Upload an image for a post", async () => {
+    const filePath = `${__dirname}/test_file.txt`; // Use a test file
+    const response = await request(app)
+      .post("/posts")
+      .set({ authorization: `JWT ${testUser.token}` })
+      .field("title", "Post with Uploaded Image")
+      .field("content", "This post has an uploaded image")
+      .attach("image", filePath); // Simulate file upload
+
+    expect(response.statusCode).toBe(201);
+    expect(response.body.title).toBe("Post with Uploaded Image");
+    expect(response.body.content).toBe("This post has an uploaded image");
+
+    // Normalize the imgUrl to use forward slashes
+    const normalizedImgUrl = response.body.imgUrl.replace(/\\/g, "/");
+    expect(normalizedImgUrl).toMatch(/http:\/\/localhost:3000\/storage\/\d+\.txt/);
+
+    // Verify the uploaded file exists in the database
+    const postId = response.body._id;
+    const getResponse = await request(app)
+      .get(`/posts/${postId}`)
+      .set({ authorization: `JWT ${testUser.token}` });
+    expect(getResponse.statusCode).toBe(200);
+
+    const normalizedImgUrl2 = getResponse.body.imgUrl.replace(/\\/g, "/");
+    expect(normalizedImgUrl2).toMatch(/http:\/\/localhost:3000\/storage\/\d+\.txt/);
+  });
+
+  test("Remove image from a post", async () => {
+    const filePath = `${__dirname}/test_file.txt`; // Use a test file
+    const createResponse = await request(app)
+      .post("/posts")
+      .set({ authorization: `JWT ${testUser.token}` })
+      .field("title", "Post with Image to Remove")
+      .field("content", "This post has an image to remove")
+      .attach("image", filePath); // Simulate file upload
+
+    const postId = createResponse.body._id;
+
+    // Normalize the imgUrl to use forward slashes
+    const normalizedImgUrl = createResponse.body.imgUrl.replace(/\\/g, "/");
+    expect(normalizedImgUrl).toMatch(/http:\/\/localhost:3000\/storage\/\d+\.txt/);
+
+    // Remove the image
+    const removeResponse = await request(app)
+      .put(`/posts/removeImage/${postId}`)
+      .set({ authorization: `JWT ${testUser.token}` });
+    expect(removeResponse.statusCode).toBe(200);
+    expect(removeResponse.body.imgUrl).toBeNull();
+
+    // Verify the image is removed in the database
+    const getResponse = await request(app)
+      .get(`/posts/${postId}`)
+      .set({ authorization: `JWT ${testUser.token}` });
+    expect(getResponse.statusCode).toBe(200);
+    expect(getResponse.body.imgUrl).toBeNull();
+  });
+
+  test("Auth middleware sends 401 when no token is provided", async () => {
+    const response = await request(app)
+      .get("/posts") // Attempt to access a protected route
+      .set({}); // No Authorization header
+
+    expect(response.statusCode).toBe(401);
+    expect(response.text).toBe("Access Denied");
+  });
+
+  test("Auth middleware sends 401 when an invalid token is provided", async () => {
+    const response = await request(app)
+      .get("/posts") // Attempt to access a protected route
+      .set({ authorization: "JWT invalidtoken" }); // Invalid token
+
+    expect(response.statusCode).toBe(401);
+    expect(response.text).toBe("Access Denied");
   });
 });

@@ -103,12 +103,31 @@ router.get("/:id", authMiddleware, postsController.getById.bind(postsController)
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Post'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: The title of the post
+ *                 example: My first post
+ *               content:
+ *                 type: string
+ *                 description: The content of the post
+ *                 example: This is the content of my first post.
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: The image file to upload
  *     responses:
  *       201:
  *         description: Post created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       400:
+ *         description: Bad request.
  */
 router.post("/", authMiddleware, upload.single("image"), postsController.create.bind(postsController));
 
@@ -126,17 +145,38 @@ router.post("/", authMiddleware, upload.single("image"), postsController.create.
  *         required: true
  *         schema:
  *           type: string
+ *           description: The ID of the post to update
+ *           example: 60d0fe4f5311236168a109ca
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Post'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: The updated title of the post
+ *                 example: Updated post title
+ *               content:
+ *                 type: string
+ *                 description: The updated content of the post
+ *                 example: Updated content of the post.
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: The new image file to upload
  *     responses:
  *       200:
  *         description: Post updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
  *       404:
  *         description: Post not found.
+ *       400:
+ *         description: Bad request.
  */
 router.put("/:id", authMiddleware, upload.single("image"), postsController.updateItem.bind(postsController));
 
@@ -162,6 +202,34 @@ router.put("/:id", authMiddleware, upload.single("image"), postsController.updat
  */
 router.delete("/:id", authMiddleware, postsController.deleteItem.bind(postsController));
 
+/**
+ * @swagger
+ * /posts/removeImage/{id}:
+ *   put:
+ *     summary: Remove the image from a post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: The ID of the post
+ *           example: 60d0fe4f5311236168a109ca
+ *     responses:
+ *       200:
+ *         description: Image removed successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       404:
+ *         description: Post not found.
+ *       500:
+ *         description: Server error.
+ */
 router.put("/removeImage/:id", authMiddleware, postsController.removeImage.bind(postsController));
 
 export default router;

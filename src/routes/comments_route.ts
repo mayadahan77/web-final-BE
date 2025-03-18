@@ -4,21 +4,21 @@ import commentsController from "../controllers/comments_controller";
 import { authMiddleware } from "../controllers/auth_controller";
 
 /**
-* @swagger
-* tags:
-*   name: Comments
-*   description: The Comments API
-*/
+ * @swagger
+ * tags:
+ *   name: Comments
+ *   description: The Comments API
+ */
 
 /**
-* @swagger
-* components:
-*   securitySchemes:
-*     bearerAuth:
-*       type: http
-*       scheme: bearer
-*       bearerFormat: JWT
-*/
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
 
 /**
  * @swagger
@@ -44,27 +44,6 @@ import { authMiddleware } from "../controllers/auth_controller";
  *         - content
  *         - senderId
  */
-
-/**
- * @swagger
- * /comments/:
- *   get:
- *     summary: Get all comments
- *     tags: [Comments]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of all comments.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Comment'
- */
-router.get("/", authMiddleware, commentsController.getAll.bind(commentsController));
-
 /**
  * @swagger
  * /comments/{id}:
@@ -115,8 +94,7 @@ router.get("/:id", authMiddleware, commentsController.getById.bind(commentsContr
  *               items:
  *                 $ref: '#/components/schemas/Comment'
  */
-
-router.get("/post/:id", authMiddleware, commentsController.getCommentsByPostId.bind(commentsController))
+router.get("/post/:id", authMiddleware, commentsController.getCommentsByPostId.bind(commentsController));
 
 /**
  * @swagger
@@ -136,7 +114,6 @@ router.get("/post/:id", authMiddleware, commentsController.getCommentsByPostId.b
  *       201:
  *         description: Comment created successfully.
  */
-
 router.post("/", authMiddleware, commentsController.create.bind(commentsController));
 
 /**

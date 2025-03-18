@@ -68,7 +68,10 @@ describe("Auth Tests", () => {
   test("Check tokens are not the same", async () => {
     const response = await request(app)
       .post(baseUrl + "/login")
-      .send(testUser);
+      .send({
+        emailOrUserName: testUser.email,
+        password: testUser.password,
+      });
     const accessToken = response.body.accessToken;
     const refreshToken = response.body.refreshToken;
 
@@ -80,15 +83,15 @@ describe("Auth Tests", () => {
     const response = await request(app)
       .post(baseUrl + "/login")
       .send({
-        email: testUser.email,
-        password: "sdfsd",
+        emailOrUserName: testUser.email,
+        password: "khkjhk",
       });
     expect(response.statusCode).not.toBe(200);
 
     const response2 = await request(app)
       .post(baseUrl + "/login")
       .send({
-        email: "dsfasd",
+        emailOrUserName: "dsfasd",
         password: "sdfsd",
       });
     expect(response2.statusCode).not.toBe(200);
@@ -97,7 +100,10 @@ describe("Auth Tests", () => {
   test("Test logout", async () => {
     const response = await request(app)
       .post(baseUrl + "/login")
-      .send(testUser);
+      .send({
+        emailOrUserName: testUser.email,
+        password: testUser.password,
+      });
     expect(response.statusCode).toBe(200);
     testUser.accessToken = response.body.accessToken;
     testUser.refreshToken = response.body.refreshToken;
@@ -141,14 +147,14 @@ describe("Auth Tests", () => {
   test("Auth test login with unregistered email", async () => {
     const response = await request(app)
       .post(baseUrl + "/login")
-      .send({ email: "unknown@user.com", password: "password" });
+      .send({ emailOrUserName: "unknown@user.com", password: "password" });
     expect(response.statusCode).toBe(400);
   });
 
   test("Auth test login invalid password", async () => {
     const response = await request(app)
       .post(baseUrl + "/login")
-      .send({ email: testUser.email, password: "wrongpassword" });
+      .send({ emailOrUserName: testUser.email, password: "wrongpassword" });
     expect(response.statusCode).toBe(400);
   });
 
@@ -190,5 +196,136 @@ describe("Auth Tests", () => {
     process.env.TOKEN_SECRET = originalTokenSecret;
 
     expect(response.statusCode).toBe(400);
+  });
+
+  test("Auth refresh token success", async () => {
+    // Log in to get a valid refresh token
+    const loginResponse = await request(app)
+      .post(baseUrl + "/login")
+      .send({
+        emailOrUserName: testUser.email,
+        password: testUser.password,
+      });
+    expect(loginResponse.statusCode).toBe(200);
+    testUser.refreshToken = loginResponse.body.refreshToken;
+
+    // Use the refresh token to generate new tokens
+    const refreshResponse = await request(app)
+      .post(baseUrl + "/refresh")
+      .send({ refreshToken: testUser.refreshToken });
+    expect(refreshResponse.statusCode).toBe(200);
+    expect(refreshResponse.body.accessToken).toBeDefined();
+    expect(refreshResponse.body.refreshToken).toBeDefined();
+  });
+
+  test("Auth refresh token missing refreshToken", async () => {
+    const response = await request(app)
+      .post(baseUrl + "/refresh")
+      .send({});
+    expect(response.statusCode).toBe(400);
+    expect(response.text).toBe("fail");
+  });
+
+  test("Auth test login with username", async () => {
+    // Log in using the username instead of the email
+    const response = await request(app)
+      .post(baseUrl + "/login")
+      .send({
+        emailOrUserName: testUser.userName, // Use the username here
+        password: testUser.password,
+      });
+
+    // Assertions
+    expect(response.statusCode).toBe(200);
+    expect(response.body.accessToken).toBeDefined();
+    expect(response.body.refreshToken).toBeDefined();
+  });
+
+  test("Auth test login with invalid username or email", async () => {
+    const response = await request(app)
+      .post(baseUrl + "/login")
+      .send({
+        emailOrUserName: "nonexistentuser",
+        password: testUser.password,
+      });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.text).toBe("wrong userName or password");
+  });
+
+  test("Auth test login with missing TOKEN_SECRET", async () => {
+    const originalTokenSecret = process.env.TOKEN_SECRET;
+    delete process.env.TOKEN_SECRET;
+
+    const response = await request(app)
+      .post(baseUrl + "/login")
+      .send({
+        emailOrUserName: testUser.email,
+        password: testUser.password,
+      });
+
+    process.env.TOKEN_SECRET = originalTokenSecret;
+
+    expect(response.statusCode).toBe(500);
+    expect(response.text).toBe("Server Error");
+  });
+
+  test("Auth test refresh token with valid token", async () => {
+    // Log in to get a valid refresh token
+    const loginResponse = await request(app)
+      .post(baseUrl + "/login")
+      .send({
+        emailOrUserName: testUser.email,
+        password: testUser.password,
+      });
+    expect(loginResponse.statusCode).toBe(200);
+    const refreshToken = loginResponse.body.refreshToken;
+
+    // Use the refresh token to generate new tokens
+    const refreshResponse = await request(app)
+      .post(baseUrl + "/refresh")
+      .send({ refreshToken });
+
+    expect(refreshResponse.statusCode).toBe(200);
+    expect(refreshResponse.body.accessToken).toBeDefined();
+    expect(refreshResponse.body.refreshToken).toBeDefined();
+  });
+
+  test("Auth test logout with invalid refresh token", async () => {
+    const response = await request(app)
+      .post(baseUrl + "/logout")
+      .send({
+        refreshToken: "invalidtoken",
+      });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.text).toBe("fail");
+  });
+
+  test("Auth test Google Sign-In missing credential", async () => {
+    const response = await request(app)
+      .post(baseUrl + "/googleSignin")
+      .send({});
+
+    expect(response.statusCode).toBe(400);
+    expect(response.text).toContain("error missing email or password");
+  });
+
+  test("Auth test server error when TOKEN_SECRET is missing", async () => {
+    const originalTokenSecret = process.env.TOKEN_SECRET;
+
+    delete process.env.TOKEN_SECRET;
+
+    const response = await request(app)
+      .post(baseUrl + "/login")
+      .send({
+        emailOrUserName: testUser.email,
+        password: testUser.password,
+      });
+
+    process.env.TOKEN_SECRET = originalTokenSecret;
+
+    expect(response.statusCode).toBe(500);
+    expect(response.text).toBe("Server Error");
   });
 });

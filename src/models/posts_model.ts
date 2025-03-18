@@ -6,7 +6,7 @@ export interface IPost {
   senderId: string;
   imgUrl: string;
   usersIdLikes?: string[];
-  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 const postSchema = new mongoose.Schema<IPost>(
@@ -31,7 +31,7 @@ const postSchema = new mongoose.Schema<IPost>(
       default: [],
     },
   },
-  { timestamps: true } // This adds createdAt and updatedAt automatically
+  { timestamps: true }
 );
 
 const postModel = mongoose.model<IPost>("Post", postSchema);

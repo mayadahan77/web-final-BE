@@ -48,6 +48,7 @@ import authController from "../controllers/auth_controller";
  *         fullName: 'bob the mob'
  *         userName: 'john cena'
  *         password: '123456'
+ *         emailOrUserName: 'bob@gmail.com'
  */
 
 /**
@@ -177,6 +178,59 @@ router.post("/refresh", authController.refresh);
  */
 router.post("/logout", authController.logout);
 
+/**
+ * @swagger
+ * /auth/googleSignin:
+ *   post:
+ *     summary: Sign in with Google
+ *     description: Authenticate a user using Google Sign-In and return tokens.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               credential:
+ *                 type: string
+ *                 description: The Google ID token credential.
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *     responses:
+ *       200:
+ *         description: Successful Google Sign-In
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 refreshToken:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                       example: googleuser@example.com
+ *                     fullName:
+ *                       type: string
+ *                       example: Google User
+ *                     userName:
+ *                       type: string
+ *                       example: googleuser@example.com
+ *                     imgUrl:
+ *                       type: string
+ *                       example: http://example.com/avatar.png
+ *       400:
+ *         description: Invalid Google credential or request
+ *       500:
+ *         description: Server error
+ */
 router.post("/googleSignin", authController.googleSignin);
 
 export default router;

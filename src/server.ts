@@ -1,9 +1,6 @@
 import express, { Express } from "express";
-const app = express();
 import dotenv from "dotenv";
-dotenv.config();
 import mongoose from "mongoose";
-
 import bodyParser from "body-parser";
 import postsRoute from "./routes/posts_route";
 import commentsRoute from "./routes/comments_route";
@@ -13,6 +10,9 @@ import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import fileRoute from "./routes/file_route";
 import path from "path";
+
+const app = express();
+dotenv.config();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,15 +32,8 @@ app.use("/comments", commentsRoute);
 app.use("/users", usersRoute);
 app.use("/auth", authRoutes);
 app.use("/file", fileRoute);
+app.use("/storage", express.static("storage"));
 app.use("/public", express.static("public"));
-
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("front"));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../front", "index.html"));
-  });
-}
 
 const options = {
   definition: {
@@ -59,17 +52,20 @@ const options = {
         },
       },
     },
-    servers: [
-      { url: "http://localhost:3000" },
-      { url: "http://node55.cs.colman.ac.il" },
-      { url: "https://node55.cs.colman.ac.il" },
-    ],
+    servers: [{ url: "http://localhost:3000" }, { url: "https://node55.cs.colman.ac.il" }],
   },
   apis: ["./src/routes/*.ts"],
 };
 const specs = swaggerJsDoc(options);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("front"));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../front", "index.html"));
+  });
+}
 const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected to database"));
