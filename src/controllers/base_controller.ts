@@ -8,21 +8,6 @@ class BaseController<T> {
     this.model = model;
   }
 
-  async getAll(req: Request, res: Response) {
-    const filter = req.query.sender;
-    try {
-      if (filter) {
-        const item = await this.model.find({ senderId: filter });
-        res.send(item);
-      } else {
-        const items = await this.model.find();
-        res.send(items);
-      }
-    } catch (error) {
-      res.status(400).send(error);
-    }
-  }
-
   async getById(req: Request, res: Response) {
     const id = req.params.id;
     try {

@@ -48,6 +48,26 @@ router.get("/:id", authMiddleware, usersController.getById.bind(usersController)
 
 /**
  * @swagger
+ * /users/:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User created successfully.
+ */
+router.post("/", authMiddleware, usersController.create.bind(usersController));
+
+/**
+ * @swagger
  * /users/{id}:
  *   put:
  *     summary: Update a user
