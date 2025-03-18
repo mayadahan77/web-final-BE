@@ -113,14 +113,6 @@ describe("Comments Tests with Authentication", () => {
     expect(response.statusCode).toBe(201);
   });
 
-  // test("Test get all Comments", async () => {
-  //   const response = await request(app)
-  //     .get("/comments")
-  //     .set({ authorization: `JWT ${testUser.token}` });
-  //   expect(response.statusCode).toBe(200);
-  //   expect(response.body.length).toBe(2);
-  // });
-
   test("Test delete Comment", async () => {
     const response = await request(app)
       .delete(`/comments/${commentId}`)
