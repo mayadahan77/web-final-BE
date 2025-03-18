@@ -48,6 +48,7 @@ import authController from "../controllers/auth_controller";
  *         fullName: 'bob the mob'
  *         userName: 'john cena'
  *         password: '123456'
+ *         emailOrUserName: 'bob@gmail.com'
  */
 
 /**
