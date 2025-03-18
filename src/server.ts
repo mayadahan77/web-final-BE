@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth_route";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import fileRoute from "./routes/file_route";
+import path from "path";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,6 +21,9 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");
   res.header("Access-Control-Allow-Methods", "*");
+  if (process.env.NODE_ENV === "production") {
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
   next();
 });
 
@@ -28,7 +32,15 @@ app.use("/comments", commentsRoute);
 app.use("/users", usersRoute);
 app.use("/auth", authRoutes);
 app.use("/file", fileRoute);
-app.use("/public", express.static("public")); // all the files are statics
+app.use("/public", express.static("public"));
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("front"));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../front", "index.html"));
+  });
+}
 
 const options = {
   definition: {

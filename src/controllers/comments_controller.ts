@@ -77,6 +77,39 @@ class CommentsController extends BaseController<IComments> {
       res.status(400).send(error);
     }
   }
+
+  async updateItem(req: Request, res: Response) {
+    const id = req.params.id;
+    const body = req.body;
+
+    try {
+      const updatedComment = await this.model.findByIdAndUpdate(id, body, { new: true });
+      if (!updatedComment) {
+        res.status(404).send("Comment not found");
+        return;
+      }
+
+      let populatedItem;
+      if (updatedComment.senderId != "ChatGPT") {
+        const user = await userModel.findOne({ _id: updatedComment.senderId });
+        populatedItem = {
+          ...updatedComment.toObject(),
+          senderName: user?.fullName,
+          senderProfile: user?.imgUrl,
+        };
+      } else {
+        populatedItem = {
+          ...updatedComment.toObject(),
+          senderName: "ChatGPT",
+          senderProfile: base + "public/chatgpt.png",
+        };
+      }
+
+      res.status(200).send(populatedItem);
+    } catch (error) {
+      res.status(400).send(error);
+    }
+  }
 }
 
 export default new CommentsController();
