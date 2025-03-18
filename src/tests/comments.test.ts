@@ -46,14 +46,6 @@ const commentTest = {
 };
 
 describe("Comments Tests with Authentication", () => {
-  // test("Comments test get all (empty)", async () => {
-  //   const response = await request(app)
-  //     .get("/comments")
-  //     .set({ authorization: `JWT ${testUser.token}` });
-  //   expect(response.statusCode).toBe(200);
-  //   expect(response.body.length).toBe(0);
-  // });
-
   test("Test Create Comment", async () => {
     const response = await request(app)
       .post("/comments")
