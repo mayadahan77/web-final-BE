@@ -162,6 +162,34 @@ router.put("/:id", authMiddleware, upload.single("image"), postsController.updat
  */
 router.delete("/:id", authMiddleware, postsController.deleteItem.bind(postsController));
 
+/**
+ * @swagger
+ * /posts/removeImage/{id}:
+ *   put:
+ *     summary: Remove the image from a post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: The ID of the post
+ *           example: 60d0fe4f5311236168a109ca
+ *     responses:
+ *       200:
+ *         description: Image removed successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       404:
+ *         description: Post not found.
+ *       500:
+ *         description: Server error.
+ */
 router.put("/removeImage/:id", authMiddleware, postsController.removeImage.bind(postsController));
 
 export default router;

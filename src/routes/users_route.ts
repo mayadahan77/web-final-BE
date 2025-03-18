@@ -2,7 +2,6 @@ import express from "express";
 const router = express.Router();
 import usersController from "../controllers/users_controller";
 import { authMiddleware } from "../controllers/auth_controller";
-import { upload } from "../file_upload_service";
 
 /**
 * @swagger
@@ -113,7 +112,7 @@ router.post("/", authMiddleware, usersController.create.bind(usersController));
  *       404:
  *         description: User not found.
  */
-router.put("/:id", authMiddleware, upload.single("image"),usersController.updateItem.bind(usersController));
+router.put("/:id", authMiddleware, usersController.updateItem.bind(usersController));
 
 /**
  * @swagger

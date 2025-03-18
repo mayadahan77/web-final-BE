@@ -6,14 +6,12 @@
   "scripts": {
     "prod": "cp .env_prod .env && tsc  -p tsconfig_prod.json && pm2 restart ecosystem.config.js --env production",
     "prod1": "cp .env_prod .env && tsc  -p tsconfig_prod.json && node ./dist/src/app.js",
-    "start": "cross-env NODE_ENV=development  tsc && node ./dist/src/app.js",
-    "test": "cross-env NODE_ENV=test dotenv -e .env_test tsc && jest --detectOpenHandles --coverage --forceExit --runInBand",
-    "testAuth": "cross-env NODE_ENV=test dotenv -e .env_test tsc && jest --detectOpenHandles --forceExit auth.test.ts",
-    "testComment": "cross-env NODE_ENV=test dotenv -e .env_test tsc && jest --detectOpenHandles --forceExit comments.test.ts",
-    "testPost": "cross-env NODE_ENV=test dotenv -e .env_test tsc && jest --detectOpenHandles --forceExit posts.test.ts",
-    "testUser": "cross-env NODE_ENV=test dotenv -e .env_test tsc && jest --detectOpenHandles --forceExit users.test.ts",
-    "testFile": "cross-env NODE_ENV=test dotenv -e .env_test tsc && jest --detectOpenHandles --forceExit file.test.ts",
-    "lint": "eslint . --ext .ts"
+    "dev": "copy .env_dev .env && nodemon ./src/app.ts",
+    "start": "copy .env_dev .env && tsc && node ./dist/src/app.js",
+    "test": "copy .env_test .env && jest --detectOpenHandles --coverage --forceExit --runInBand",
+    "testAuth": "copy .env_test .env && jest --detectOpenHandles --forceExit auth.test.ts",
+    "testPosts": "copy .env_test .env && jest --detectOpenHandles --forceExit posts.test.ts",
+    "testFile": "copy .env_test .env && jest --detectOpenHandles --forceExit file.test.ts"
   },
   "author": "Maya and Yuval",
   "license": "ISC",

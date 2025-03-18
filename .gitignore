@@ -4,3 +4,4 @@ dist/
 public/uploads/
 .env
 .env_prod
+.env_dev

@@ -22,10 +22,14 @@ beforeAll(async () => {
   await userModel.deleteMany();
 
   await request(app).post("/auth/register").send(testUser);
-  const res = await request(app).post("/auth/login").send(testUser);
+  const res = await request(app).post("/auth/login").send({
+    emailOrUserName: testUser.email,
+    password: testUser.password,
+  });
   testUser.token = res.body.accessToken;
-  testUser._id = res.body.user._id;
+  testUser._id = res.body.user?._id || res.body._id;
   expect(testUser.token).toBeDefined();
+  expect(testUser._id).toBeDefined();
 });
 
 afterAll((done) => {
