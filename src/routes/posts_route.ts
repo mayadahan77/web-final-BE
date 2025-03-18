@@ -162,4 +162,6 @@ router.put("/:id", authMiddleware, upload.single("image"), postsController.updat
  */
 router.delete("/:id", authMiddleware, postsController.deleteItem.bind(postsController));
 
+router.put("/removeImage/:id", authMiddleware, postsController.removeImage.bind(postsController));
+
 export default router;

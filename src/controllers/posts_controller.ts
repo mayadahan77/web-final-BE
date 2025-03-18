@@ -9,8 +9,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 class PostsController extends BaseController<IPost> {
   constructor() {
     super(postModel);
@@ -29,33 +27,33 @@ class PostsController extends BaseController<IPost> {
     const body = req.body;
     try {
       const createdPost = await this.model.create(body);
+      if (process.env.NODE_ENV !== "test") {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-      const query = "Generate a short 10 words comment content about this post title:" + createdPost.title;
+        const query = "Generate a short 10 words comment content about this post title:" + createdPost.title;
 
-      // Generate ChatGPT comment
-      const chatGPTResponse = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        store: true,
-        messages: [
-          { role: "system", content: "You are a helpful assistant that comments on posts." },
-          { role: "user", content: query },
-        ],
-      });
+        const chatGPTResponse = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          store: true,
+          messages: [
+            { role: "system", content: "You are a helpful assistant that comments on posts." },
+            { role: "user", content: query },
+          ],
+        });
 
-      console.log(chatGPTResponse.choices[0].message.content);
+        const chatGPTComment = chatGPTResponse.choices[0]?.message?.content || "Interesting post!";
+        const cleanedText = chatGPTComment.replace(/^"|"$/g, "");
 
-      const chatGPTComment = chatGPTResponse.choices[0]?.message?.content || "Interesting post!";
-      const cleanedText = chatGPTComment.replace(/^"|"$/g, "");
-
-      const newComment = {
-        postId: createdPost._id,
-        content: cleanedText,
-        senderId: "ChatGPT",
-      };
-      try {
-        await commentModel.create(newComment);
-      } catch (error) {
-        res.status(400).send(error);
+        const newComment = {
+          postId: createdPost._id,
+          content: cleanedText,
+          senderId: "ChatGPT",
+        };
+        try {
+          await commentModel.create(newComment);
+        } catch (error) {
+          res.status(400).send(error);
+        }
       }
       res.status(201).send(createdPost);
     } catch (error) {
@@ -122,7 +120,7 @@ class PostsController extends BaseController<IPost> {
     }
   }
 
-  async updateItem(req: Request, res: Response): Promise<void> {
+  async updateItem(req: Request, res: Response) {
     const id = req.params.id;
     let body = {};
     if (req.file) {
@@ -152,6 +150,21 @@ class PostsController extends BaseController<IPost> {
       return;
     } catch (error) {
       res.status(400).send(error);
+    }
+  }
+
+  async removeImage(req: Request, res: Response) {
+    const postId = req.params.id;
+
+    try {
+      const post = await postModel.findByIdAndUpdate(postId, { imgUrl: null }, { new: true });
+      if (!post) {
+        res.status(404).send(`${postId ? "Post" : "User"} not found`);
+        return;
+      }
+      res.status(200).send(post);
+    } catch (error) {
+      res.status(500).send(error);
     }
   }
 }

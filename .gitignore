@@ -2,3 +2,5 @@ node_modules/
 coverage/
 dist/
 public/uploads/
+.env
+.env_prod
