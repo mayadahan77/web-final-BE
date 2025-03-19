@@ -1,6 +1,7 @@
 import multer from "multer";
 
 export const base = process.env.DOMAIN_BASE + "/";
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "storage/");

@@ -9,6 +9,23 @@ class CommentsController extends BaseController<IComments> {
     super(commentsModel);
   }
 
+  private async populateComment(item: IComments) {
+    if (item.senderId !== "ChatGPT") {
+      const user = await userModel.findOne({ _id: item.senderId });
+      return {
+        ...item.toObject(),
+        senderName: user?.fullName,
+        senderProfile: user?.imgUrl,
+      };
+    } else {
+      return {
+        ...item.toObject(),
+        senderName: "ChatGPT",
+        senderProfile: base + "public/chatgpt.png",
+      };
+    }
+  }
+
   async create(req: Request, res: Response) {
     const userId = req.params.userId;
     const post = {
@@ -19,22 +36,7 @@ class CommentsController extends BaseController<IComments> {
     const body = req.body;
     try {
       const item = await this.model.create(body);
-      let populatedItem;
-      if (item.senderId != "ChatGPT") {
-        const user = await userModel.findOne({ _id: item.senderId });
-        populatedItem = {
-          ...item.toObject(),
-          senderName: user?.fullName,
-          senderProfile: user?.imgUrl,
-        };
-      } else {
-        populatedItem = {
-          ...item.toObject(),
-          senderName: "ChatGPT",
-          senderProfile: base + "public/chatgpt.png",
-        };
-      }
-
+      const populatedItem = await this.populateComment(item);
       res.status(201).send(populatedItem);
     } catch (error) {
       res.status(400).send(error);
@@ -50,24 +52,7 @@ class CommentsController extends BaseController<IComments> {
       if (filter) {
         const items = await this.model.find({ postId: filter }).skip(skip).limit(limit);
         const totalItems = await this.model.countDocuments({ postId: filter });
-        const populatedItems = await Promise.all(
-          items.map(async (i) => {
-            if (i.senderId != "ChatGPT") {
-              const user = await userModel.findOne({ _id: i.senderId });
-              return {
-                ...i.toObject(),
-                senderName: user?.fullName,
-                senderProfile: user?.imgUrl,
-              };
-            } else {
-              return {
-                ...i.toObject(),
-                senderName: "ChatGPT",
-                senderProfile: base + "public/chatgpt.png",
-              };
-            }
-          })
-        );
+        const populatedItems = await Promise.all(items.map(this.populateComment.bind(this)));
         res.send({
           totalItems,
           items: populatedItems,
@@ -89,22 +74,7 @@ class CommentsController extends BaseController<IComments> {
         return;
       }
 
-      let populatedItem;
-      if (updatedComment.senderId != "ChatGPT") {
-        const user = await userModel.findOne({ _id: updatedComment.senderId });
-        populatedItem = {
-          ...updatedComment.toObject(),
-          senderName: user?.fullName,
-          senderProfile: user?.imgUrl,
-        };
-      } else {
-        populatedItem = {
-          ...updatedComment.toObject(),
-          senderName: "ChatGPT",
-          senderProfile: base + "public/chatgpt.png",
-        };
-      }
-
+      const populatedItem = await this.populateComment(updatedComment);
       res.status(200).send(populatedItem);
     } catch (error) {
       res.status(400).send(error);
