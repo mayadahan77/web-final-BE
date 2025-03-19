@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-export interface IComments {
+export interface IComments extends Document {
   postId: string;
   content: string;
   senderId: string;
@@ -21,5 +21,5 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
-const commentModel = mongoose.model("Comment", commentSchema);
+const commentModel = mongoose.model<IComments>("Comment", commentSchema);
 export default commentModel;

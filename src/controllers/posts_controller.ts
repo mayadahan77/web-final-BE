@@ -3,7 +3,6 @@ import postModel, { IPost } from "../models/posts_model";
 import BaseController from "./base_controller";
 import userModel from "../models/users_model";
 import commentModel from "../models/comments_model";
-import { base } from "../file_upload_service";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 
@@ -14,17 +13,26 @@ class PostsController extends BaseController<IPost> {
     super(postModel);
   }
 
-  async create(req: Request, res: Response) {
-    const userId = req.params.userId;
-    const image = req.file ? base + req.file?.path : null;
-    const post = {
-      ...req.body,
-      imgUrl: image,
-      senderId: userId,
+  private async populateItem(item: IPost) {
+    const user = await userModel.findOne({ _id: item.senderId });
+    const commentsCount = await commentModel.countDocuments({ postId: item._id });
+    return {
+      ...item.toObject(),
+      senderName: user?.fullName,
+      senderProfile: user?.imgUrl,
+      commentsCount: commentsCount,
     };
-    req.body = post;
+  }
+ base = process.env.DOMAIN_BASE + "/";
 
-    const body = req.body;
+  async create(req: Request, res: Response) {
+    const body = {
+      ...req.body,
+      imgUrl: req.file ? this.base + req.file?.path : null,
+      senderId: req.params.userId,
+    };
+    req.body = body;
+
     try {
       const createdPost = await this.model.create(body);
       if (process.env.NODE_ENV !== "test") {
@@ -76,18 +84,7 @@ class PostsController extends BaseController<IPost> {
         items = await this.model.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
         totalItems = await this.model.countDocuments();
       }
-      const populatedItems = await Promise.all(
-        items.map(async (i) => {
-          const user = await userModel.findOne({ _id: i.senderId });
-          const commentsCount = await commentModel.countDocuments({ postId: i._id });
-          return {
-            ...i.toObject(),
-            senderName: user?.fullName,
-            senderProfile: user?.imgUrl,
-            commentsCount: commentsCount,
-          };
-        })
-      );
+      const populatedItems = await Promise.all(items.map(this.populateItem));
       res.send({
         totalItems,
         items: populatedItems,
@@ -102,15 +99,7 @@ class PostsController extends BaseController<IPost> {
     try {
       const item = await this.model.findById(id);
       if (item != null) {
-        const user = await userModel.findOne({ _id: item.senderId });
-        const commentsCount = await commentModel.countDocuments({ postId: item._id });
-        const populatedItem = {
-          ...item.toObject(),
-          senderName: user?.fullName,
-          senderProfile: user?.imgUrl,
-          commentsCount: commentsCount,
-        };
-
+        const populatedItem = await this.populateItem(item);
         res.send(populatedItem);
       } else {
         res.status(404).send("not found");
@@ -126,7 +115,7 @@ class PostsController extends BaseController<IPost> {
     if (req.file) {
       body = {
         ...req.body,
-        imgUrl: base + req.file?.path,
+        imgUrl: this.base + req.file?.path,
       };
     } else {
       body = req.body;
@@ -136,15 +125,7 @@ class PostsController extends BaseController<IPost> {
       if (!rs) {
         res.status(404).send();
       } else {
-        const user = await userModel.findOne({ _id: rs.senderId });
-        const commentsCount = await commentModel.countDocuments({ postId: rs._id });
-        const populatedItem = {
-          ...rs.toObject(),
-          senderName: user?.fullName,
-          senderProfile: user?.imgUrl,
-          commentsCount: commentsCount,
-        };
-
+        const populatedItem = await this.populateItem(rs);
         res.send(populatedItem);
       }
       return;
@@ -159,7 +140,7 @@ class PostsController extends BaseController<IPost> {
     try {
       const post = await postModel.findByIdAndUpdate(postId, { imgUrl: null }, { new: true });
       if (!post) {
-        res.status(404).send(`${postId ? "Post" : "User"} not found`);
+        res.status(404).send("Post not found");
         return;
       }
       res.status(200).send(post);

@@ -219,6 +219,52 @@ describe("Post Controller Tests", () => {
     expect(getResponse.body.imgUrl).toBeNull();
   });
 
+  test("Remove image from a non-existent post", async () => {
+    const response = await request(app)
+      .put("/posts/removeImage/invalidPostId")
+      .set({ authorization: `JWT ${testUser.token}` });
+
+    expect(response.statusCode).toBe(500);
+  });
+
+  test("Remove image from a post without authorization", async () => {
+    const filePath = `${__dirname}/test_file.txt`; // Use a test file
+    const createResponse = await request(app)
+      .post("/posts")
+      .set({ authorization: `JWT ${testUser.token}` })
+      .field("title", "Post with Image to Remove Unauthorized")
+      .field("content", "This post has an image to remove unauthorized")
+      .attach("image", filePath); // Simulate file upload
+
+    const postId = createResponse.body._id;
+
+    const response = await request(app)
+      .put(`/posts/removeImage/${postId}`) // Attempt to remove image without token
+      .set({}); // No Authorization header
+
+    expect(response.statusCode).toBe(401);
+    expect(response.text).toBe("Access Denied");
+  });
+
+  test("Remove image from a post with invalid token", async () => {
+    const filePath = `${__dirname}/test_file.txt`; // Use a test file
+    const createResponse = await request(app)
+      .post("/posts")
+      .set({ authorization: `JWT ${testUser.token}` })
+      .field("title", "Post with Image to Remove Invalid Token")
+      .field("content", "This post has an image to remove invalid token")
+      .attach("image", filePath); // Simulate file upload
+
+    const postId = createResponse.body._id;
+
+    const response = await request(app)
+      .put(`/posts/removeImage/${postId}`) // Attempt to remove image with invalid token
+      .set({ authorization: "JWT invalidtoken" });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.text).toBe("Access Denied");
+  });
+
   test("Auth middleware sends 401 when no token is provided", async () => {
     const response = await request(app)
       .get("/posts") // Attempt to access a protected route
